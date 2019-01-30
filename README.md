@@ -1,0 +1,1 @@
+node_modules/.bin/tsc --target ES6 ./scratch.ts
