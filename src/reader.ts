@@ -121,7 +121,7 @@ async function showWords(words: string[], display: HTMLElement): Promise<void> {
 async function main() {
   const div: HTMLElement = document.createElement('div');
   div.setAttribute('id', 'spritz-container');
-  const foo = await fetch('./index.html').then(resp => resp.text());
+  const foo = await fetch('https://branweb1.github.io/reader/dist/reader.html').then(resp => resp.text());
   div.innerHTML = foo;
   document.body.appendChild(div);
   const display: HTMLElement = document.querySelector('#spritz-display-area');
