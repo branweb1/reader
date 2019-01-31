@@ -5,11 +5,24 @@
   "main": "scratch.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc *.ts"
+    "prebuild:js": "mkdir tmp",
+    "compile:js": "tsc --target ES6 --outDir tmp src/*.ts",
+    "minify:js": "terser --compress --mangle --output dist/reader.js -- tmp/reader.js",
+    "build:js": "npm run compile:js && npm run minify:js",
+    "postbuild:js": "rm -rf tmp",
+    "build:css": "postcss src/style.css > dist/style.css",
+    "build:html": "html-minifier --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype src/reader.html -o dist/reader.html",
+    "build": "npm run build:js && npm run build:css && npm run build:html",
+    "clean": "rm -rf dist/*",
+    "prebuild": "npm run clean"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "typescript": "^3.2.4"
+    "cssnano": "4.1.8",
+    "html-minifier": "3.5.21",
+    "postcss-cli": "6.1.1",
+    "terser": "3.14.1",
+    "typescript": "3.2.4"
   }
 }
