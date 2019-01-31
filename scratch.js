@@ -6,6 +6,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+// constants
+const RED_LETTER_OFFSET = 6;
+// word display
 function calcRedIdx(word) {
     let redIdx;
     const wordlen = word.length;
@@ -29,9 +32,8 @@ function splitter(text) {
         .filter(idFunc);
 }
 function makeWord(word) {
-    const MAGIC_NUM = 3;
     const idx = calcRedIdx(word);
-    const p1 = leftpad(word.substring(0, idx), ' ', MAGIC_NUM - idx);
+    const p1 = leftpad(word.substring(0, idx), ' ', RED_LETTER_OFFSET - idx);
     const p2 = `<span style="color:red;">${word.charAt(idx)}</span>`;
     const p3 = word.substring(idx + 1);
     return p1 + p2 + p3;
@@ -60,17 +62,10 @@ function leftpad(word, char, n) {
     }
     return padding + word;
 }
-const poem = "How doth the little crocodile \
-  Improve his shining tail, \
-  And pour the waters of the Nile \
-  On every golden scale! \
-  How cheerfully he seems to grin, \
-  How neatly spread his claws, \
-  And welcome little fishes in \
-  With gently smiling jaws!";
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+// text-select
 function extractTextArea() {
     const txtarea = document.querySelector('textArea');
     return txtarea ? txtarea.value : '';
@@ -85,7 +80,6 @@ function extractTextAreaSelection() {
 }
 function extractPageSelection() {
     return window.getSelection().toString(); // returns "" if nothing selected
-    // .toString().replace(/\"/ig, "'"); // double-quotes in selection are escaped
 }
 function extractText() {
     const pageSel = extractPageSelection();
@@ -100,9 +94,18 @@ function extractText() {
         return extractTextAreaSelection() || extractTextArea();
     }
 }
-function mm(words) {
+// ui stuff
+function setBarOffset(elem) {
+    elem.style.visibility = 'hidden';
+    elem.innerHTML = makeWord('dummyword');
+    const charLen = elem.querySelector('span').getBoundingClientRect().width;
+    const offset = (charLen / 2) + (charLen * (RED_LETTER_OFFSET));
+    [...document.querySelectorAll('.spritz-vert-bar')].forEach((node) => node.style.width = `${offset}px`);
+    elem.innerHTML = ' ';
+    elem.style.visibility = 'initial';
+}
+function showWords(words, display) {
     return __awaiter(this, void 0, void 0, function* () {
-        const display = document.querySelector('#spritz-display-area');
         for (let i = 0; i < words.length; i++) {
             const word = makeWord(words[i]);
             display.innerHTML = word;
@@ -110,26 +113,36 @@ function mm(words) {
         }
     });
 }
-// const words = splitter(poem + ' ' + poem + ' ' + poem);
-// mm(words);
-// document.querySelector('button').addEventListener('click', function (e) {
-//   e.preventDefault();
-//   const words = splitter(extractText()); // some error here to indicate nothing to show
-//   mm(words);
-// })
-function main(e) {
-    e.preventDefault();
-    const div = document.createElement('div');
-    div.setAttribute('id', 'spritz-container');
-    div.innerHTML = '<pre id="spritz-display-area"></pre>';
-    document.body.appendChild(div);
-    const words = splitter(extractText());
-    mm(words);
+function main() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // e.preventDefault();
+        const div = document.createElement('div');
+        div.setAttribute('id', 'spritz-container');
+        const foo = yield fetch('./index.html').then(resp => resp.text());
+        div.innerHTML = foo;
+        // div.innerHTML = '<div> \
+        //     <div id="spritz-top-border"> \
+        //       <div class="spritz-vert-bar"></div> \
+        //     </div> \
+        //     <pre id="spritz-display-area"></pre> \
+        //     <div id="spritz-bottom-border"> \
+        //       <div class="spritz-vert-bar"></div> \
+        //     </div> \
+        //   </div>';
+        document.body.appendChild(div);
+        const display = document.querySelector('#spritz-display-area');
+        setBarOffset(display);
+        const words = splitter(extractText());
+        showWords(words, display);
+    });
 }
-document.querySelector('button').addEventListener('click', main);
-// open in dragabble modal
+main();
+// document.querySelector('button').addEventListener('click', main);
+// make modal dragabble
 // pause/resume
-// build frame and style modal
 // adjust wpm
+// close btn
 // put js,css,html on gh-pages
 // write a bookmarklet that inserts script tag on page and loads js into it, which then builds the window
+// better monospace font
+// tone down colors
