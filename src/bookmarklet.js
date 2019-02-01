@@ -7,15 +7,16 @@ javascript:(function() {
                               })
                               .length;
   if (alreadyCreated) {
-    toggleReaderVisibility();
+    readerInit();
     return;
   }
+
   var script = document.createElement('script');
   script.setAttribute('type', 'text/javascript');
   script.setAttribute('async', 'true');
   script.setAttribute('src', 'https://branweb1.github.io/reader/dist/reader.js');
   document.documentElement.appendChild(script);
-  // script.onload = function(){
-  //   create_spritz();
-  // }
+  script.onload = function(){
+    readerInit();
+  }
 })();

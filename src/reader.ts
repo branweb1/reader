@@ -1,5 +1,15 @@
-// constants
-const RED_LETTER_OFFSET = 6;
+// types
+enum SpeedOp {
+  Inc,
+  Dec
+}
+type Handler = (x: Event) => void;
+type CMapIterator<T> = (x: T) => Array<T>;
+
+// globals
+const RED_LETTER_OFFSET: number = 5;
+let WPM: number = 320;
+let VISIBLE: boolean = false;
 
 // word display
 function calcRedIdx(word: string): number {
@@ -28,7 +38,7 @@ function splitter(text: string): string[] {
 function makeWord(word: string): string {
   const idx = calcRedIdx(word);
   const p1 = leftpad(word.substring(0,idx), ' ', RED_LETTER_OFFSET-idx);
-  const p2 = `<span style="color:#CC0033;">${word.charAt(idx)}</span>`;
+  const p2 = `<span class="red-letter">${word.charAt(idx)}</span>`;
   const p3 = word.substring(idx+1);
   return p1 + p2 + p3;
 }
@@ -45,7 +55,6 @@ function calcSleepTime(word: string, wpm: number): number {
 }
 
 // helpers
-type CMapIterator<T> = (x: T) => Array<T>;
 function concatMap<T>(f: CMapIterator<T>, arr: Array<T>): Array<T> {
   return arr.reduce((acc, a) => {
     return [...acc, ...f(a)];
@@ -110,59 +119,79 @@ function setBarOffset(elem: HTMLElement): void {
   elem.style.visibility = 'initial';
 }
 
-let WPM = 320;
-
-function decWMP(e): void {
-  e.preventDefault();
-  WPM -=10;
-  document.querySelector('.wpm-count').textContent = `${WPM}`;
+function modWPM(op: SpeedOp): Handler  {
+  return (e) => {
+    e.preventDefault();
+    if (op === SpeedOp.Inc) {
+      WPM += 10;
+    } else if (op === SpeedOp.Dec) {
+      WPM -= 10;
+    }
+    document.querySelector('.wpm-count').textContent = `${WPM}`;
+  }
 }
 
-function incWMP(e): void {
-  e.preventDefault();
-  WPM += 10;
-  document.querySelector('.wpm-count').textContent = `${WPM}`;
-}
-
-async function showWords(words: string[], display: HTMLElement): Promise<void> {
-  for (let i = 0; i < words.length; i++) {
+async function cycleWords(words: string[], display: HTMLElement): Promise<void> {
+  for (let i = 0, IDX = i; i < words.length && VISIBLE; i++) {
     const word = makeWord(words[i]);
     display.innerHTML = word;
     await sleep(calcSleepTime(word, WPM));
   }
 }
 
-function toggleReaderVisibility(): void {
+function readerStop() {
   const container: HTMLElement = document.querySelector('#spritz-container');
-  if (container.style.display === 'none') {
-    container.style.display = 'flex';
-    const display: HTMLElement = document.querySelector('#spritz-display-area');
-    const words = splitter(extractText());
-    showWords(words, display);
-  } else {
-    container.style.display = 'none';
-  }
+  VISIBLE = false;
+  container.style.display = 'none';
 }
 
-async function readerMain() {
+async function readerSetup() {
+  // inject reader modal into current page
   const div: HTMLElement = document.createElement('div');
   const html = await fetch('https://branweb1.github.io/reader/dist/reader.html').then(resp => resp.text());
-  const style: HTMLElement = document.createElement('link');
   div.setAttribute('id', 'spritz-container');
+  div.innerHTML = html;
+  document.body.appendChild(div);
+
+  // inject stylesheet into current page
+  const style: HTMLElement = document.createElement('link');
   style.setAttribute('rel', 'stylesheet');
   style.setAttribute('type', 'text/css');
   style.setAttribute('href', 'https://branweb1.github.io/reader/dist/style.css');
-  document.querySelector('head').appendChild(style);
-  div.innerHTML = html;
-  document.body.appendChild(div);
-  const display: HTMLElement = document.querySelector('#spritz-display-area');
-  document.querySelector('.spritz-close-btn').addEventListener('click', toggleReaderVisibility);
-  document.querySelector('.wpm-increase').addEventListener('click', incWMP);
-  document.querySelector('.wpm-decrease').addEventListener('click', decWMP);
+  const head = document.querySelector('head');
+  head.insertBefore(style, head.firstChild);
+
+  // add event listeners
+  document.querySelector('.spritz-close-btn').addEventListener('click', readerStop);
+  document.querySelector('.wpm-increase').addEventListener('click', modWPM(SpeedOp.Inc));
+  document.querySelector('.wpm-decrease').addEventListener('click', modWPM(SpeedOp.Dec));
+
+  // ui setup
   document.querySelector('.wpm-count').textContent = `${WPM}`;
+  const display: HTMLElement = document.querySelector('#spritz-display-area');
   setBarOffset(display);
-  const words = splitter(extractText());
-  showWords(words, display);
 }
 
-readerMain();
+
+function calcPosition(t: number, o: number): number {
+  if (t < 0) {
+    return Math.abs(t) + (2*o);
+  } else {
+    return o;
+  }
+}
+
+async function readerInit() {
+  let exists: HTMLElement = document.querySelector('#spritz-container');
+  if (!exists) {
+    await readerSetup();
+    exists = document.querySelector('#spritz-container');
+  } else {
+    exists.style.display = 'flex';
+  }
+  const display: HTMLElement = document.querySelector('#spritz-display-area');
+  exists.style.top = `${calcPosition(exists.getBoundingClientRect().top, 45)}px`;
+  VISIBLE = true;
+  const words = splitter(extractText());
+  cycleWords(words, display);
+}
