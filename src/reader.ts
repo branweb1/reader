@@ -123,15 +123,20 @@ function toggleReaderVisibility(): void {
   if (container.style.display === 'none') {
     container.style.display = 'initial';
   } else {
-    container.style.display = 'none;'
+    container.style.display = 'none';
   }
 }
 
 async function readerMain() {
   const div: HTMLElement = document.createElement('div');
+  const html = await fetch('https://branweb1.github.io/reader/dist/reader.html').then(resp => resp.text());
+  const style: HTMLElement = document.createElement('link');
   div.setAttribute('id', 'spritz-container');
-  const foo = await fetch('https://branweb1.github.io/reader/dist/reader.html').then(resp => resp.text());
-  div.innerHTML = foo;
+  style.setAttribute('rel', 'stylesheet');
+  style.setAttribute('type', 'text/css');
+  style.setAttribute('href', 'https://branweb1.github.io/reader/dist/style.css');
+  document.querySelector('head').appendChild(style);
+  div.innerHTML = html;
   document.body.appendChild(div);
   const display: HTMLElement = document.querySelector('#spritz-display-area');
   setBarOffset(display);
