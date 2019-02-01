@@ -172,15 +172,6 @@ async function readerSetup() {
   setBarOffset(display);
 }
 
-
-function calcPosition(t: number, o: number): number {
-  if (t < 0) {
-    return Math.abs(t) + (2*o);
-  } else {
-    return o;
-  }
-}
-
 async function readerInit() {
   let exists: HTMLElement = document.querySelector('#spritz-container');
   if (!exists) {
@@ -190,7 +181,7 @@ async function readerInit() {
     exists.style.display = 'flex';
   }
   const display: HTMLElement = document.querySelector('#spritz-display-area');
-  exists.style.top = `${calcPosition(exists.getBoundingClientRect().top, 45)}px`;
+  exists.style.top = `${window.scrollY + 45}px`;
   VISIBLE = true;
   const words = splitter(extractText());
   cycleWords(words, display);
