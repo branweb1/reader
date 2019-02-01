@@ -2,9 +2,9 @@ node_modules/.bin/tsc --target ES6 ./scratch.ts
 
 make modal dragabble
 pause/resume
-adjust wpm
-close btn
 better monospace font
+cleanup js code
+watch build for dev
 
 ./node_modules/.bin/tsc --target ES6 ./src/reader.ts --outFile /dev/stdout | ./node_modules/.bin/terser --compress --
 

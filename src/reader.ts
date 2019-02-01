@@ -110,18 +110,35 @@ function setBarOffset(elem: HTMLElement): void {
   elem.style.visibility = 'initial';
 }
 
+let WPM = 320;
+
+function decWMP(e): void {
+  e.preventDefault();
+  WPM -=10;
+  document.querySelector('.wpm-count').textContent = `${WPM}`;
+}
+
+function incWMP(e): void {
+  e.preventDefault();
+  WPM += 10;
+  document.querySelector('.wpm-count').textContent = `${WPM}`;
+}
+
 async function showWords(words: string[], display: HTMLElement): Promise<void> {
   for (let i = 0; i < words.length; i++) {
     const word = makeWord(words[i]);
     display.innerHTML = word;
-    await sleep(calcSleepTime(word, 300));
+    await sleep(calcSleepTime(word, WPM));
   }
 }
 
 function toggleReaderVisibility(): void {
   const container: HTMLElement = document.querySelector('#spritz-container');
   if (container.style.display === 'none') {
-    container.style.display = 'initial';
+    container.style.display = 'flex';
+    const display: HTMLElement = document.querySelector('#spritz-display-area');
+    const words = splitter(extractText());
+    showWords(words, display);
   } else {
     container.style.display = 'none';
   }
@@ -139,6 +156,10 @@ async function readerMain() {
   div.innerHTML = html;
   document.body.appendChild(div);
   const display: HTMLElement = document.querySelector('#spritz-display-area');
+  document.querySelector('.spritz-close-btn').addEventListener('click', toggleReaderVisibility);
+  document.querySelector('.wpm-increase').addEventListener('click', incWMP);
+  document.querySelector('.wpm-decrease').addEventListener('click', decWMP);
+  document.querySelector('.wpm-count').textContent = `${WPM}`;
   setBarOffset(display);
   const words = splitter(extractText());
   showWords(words, display);
