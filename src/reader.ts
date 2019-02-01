@@ -28,7 +28,7 @@ function splitter(text: string): string[] {
 function makeWord(word: string): string {
   const idx = calcRedIdx(word);
   const p1 = leftpad(word.substring(0,idx), ' ', RED_LETTER_OFFSET-idx);
-  const p2 = `<span style="color:red;">${word.charAt(idx)}</span>`;
+  const p2 = `<span style="color:#CC0033;">${word.charAt(idx)}</span>`;
   const p3 = word.substring(idx+1);
   return p1 + p2 + p3;
 }
