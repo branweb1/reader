@@ -118,7 +118,16 @@ async function showWords(words: string[], display: HTMLElement): Promise<void> {
   }
 }
 
-async function main() {
+function toggleReaderVisibility(): void {
+  const container: HTMLElement = document.querySelector('#spritz-container');
+  if (container.style.display === 'none') {
+    container.style.display = 'initial';
+  } else {
+    container.style.display = 'none;'
+  }
+}
+
+async function readerMain() {
   const div: HTMLElement = document.createElement('div');
   div.setAttribute('id', 'spritz-container');
   const foo = await fetch('https://branweb1.github.io/reader/dist/reader.html').then(resp => resp.text());
@@ -130,5 +139,4 @@ async function main() {
   showWords(words, display);
 }
 
-main();
-
+readerMain();
