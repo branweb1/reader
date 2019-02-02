@@ -113,8 +113,8 @@ function setBarOffset(elem: HTMLElement): void {
   elem.innerHTML = makeWord('dummyword');
   const charLen = elem.querySelector('span').getBoundingClientRect().width;
   const offset = (charLen / 2) + (charLen * (RED_LETTER_OFFSET));
-  [...document.querySelectorAll('.spritz-vert-bar')].forEach((node: HTMLElement) =>
-                                                             node.style.width = `${offset}px`);
+  [...document.querySelector('#spritz-container').shadowRoot.querySelectorAll('.vert-bar')]
+    .forEach((node: HTMLElement) => node.style.width = `${offset}px`);
   elem.innerHTML = ' ';
   elem.style.visibility = 'initial';
 }
@@ -127,7 +127,8 @@ function modWPM(op: SpeedOp): Handler  {
     } else if (op === SpeedOp.Dec) {
       WPM -= 10;
     }
-    document.querySelector('.wpm-count').textContent = `${WPM}`;
+    document.querySelector('#spritz-container').shadowRoot
+      .querySelector('.wpm-count').textContent = `${WPM}`;
   }
 }
 
@@ -148,27 +149,27 @@ function readerStop() {
 async function readerSetup() {
   // inject reader modal into current page
   const div: HTMLElement = document.createElement('div');
-  const html = await fetch('https://branweb1.github.io/reader/dist/reader.html').then(resp => resp.text());
   div.setAttribute('id', 'spritz-container');
-  div.innerHTML = html;
-  document.body.appendChild(div);
+  div.attachShadow({mode: 'open'});
 
-  // inject stylesheet into current page
+  const html = await fetch('https://branweb1.github.io/reader/dist/reader.html').then(resp => resp.text());
   const style: HTMLElement = document.createElement('link');
   style.setAttribute('rel', 'stylesheet');
   style.setAttribute('type', 'text/css');
   style.setAttribute('href', 'https://branweb1.github.io/reader/dist/style.css');
-  const head = document.querySelector('head');
-  head.insertBefore(style, head.firstChild);
+
+  div.shadowRoot.innerHTML = html;
+  div.shadowRoot.insertBefore(style, div.shadowRoot.firstChild);
+  document.body.appendChild(div);
 
   // add event listeners
-  document.querySelector('.spritz-close-btn').addEventListener('click', readerStop);
-  document.querySelector('.wpm-increase').addEventListener('click', modWPM(SpeedOp.Inc));
-  document.querySelector('.wpm-decrease').addEventListener('click', modWPM(SpeedOp.Dec));
+  div.shadowRoot.querySelector('.close-btn').addEventListener('click', readerStop);
+  div.shadowRoot.querySelector('.wpm-increase').addEventListener('click', modWPM(SpeedOp.Inc));
+  div.shadowRoot.querySelector('.wpm-decrease').addEventListener('click', modWPM(SpeedOp.Dec));
 
   // ui setup
-  document.querySelector('.wpm-count').textContent = `${WPM}`;
-  const display: HTMLElement = document.querySelector('#spritz-display-area');
+  div.shadowRoot.querySelector('.wpm-count').textContent = `${WPM}`;
+  const display: HTMLElement = div.shadowRoot.querySelector('#display-area');
   setBarOffset(display);
 }
 
@@ -178,10 +179,11 @@ async function readerInit() {
     await readerSetup();
     exists = document.querySelector('#spritz-container');
   } else {
-    exists.style.display = 'flex';
+    exists.style.display = 'initial';
   }
-  const display: HTMLElement = document.querySelector('#spritz-display-area');
-  exists.style.top = `${window.scrollY + 45}px`;
+  const display: HTMLElement = exists.shadowRoot.querySelector('#display-area');
+  const foo: HTMLElement = exists.shadowRoot.querySelector('.container');
+  foo.style.top = `${window.scrollY + 45}px`;
   VISIBLE = true;
   const words = splitter(extractText());
   cycleWords(words, display);
