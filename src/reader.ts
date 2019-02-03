@@ -182,7 +182,7 @@ async function readerInit() {
   const display: HTMLElement = exists.shadowRoot.querySelector('#display-area');
   const foo: HTMLElement = exists.shadowRoot.querySelector('.container');
   foo.style.top = `${window.scrollY + 45}px`;
-  RUNNING = true;
+//  RUNNING = true;
   WORDS = splitter(extractText());
   IDX = 0;
   cycleWords(display);
@@ -193,6 +193,7 @@ function togglePause(e: Event): void {
   RUNNING = !RUNNING;
   const container: HTMLElement = document.querySelector('#spritz-container');
   const display: HTMLElement = container.shadowRoot.querySelector('#display-area');
+  container.shadowRoot.querySelector('.pause').textContent = RUNNING ? 'pause' : 'start'; 
   cycleWords(display);
 }
 
