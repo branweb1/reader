@@ -66,6 +66,13 @@
     }
   }
 
+  .pause {
+    position: absolute;
+    bottom: 0.5em;
+    left: 0.5em;
+  }
+
+  .pause,
   .close-btn,
   .wpm-decrease,
   .wpm-increase {

@@ -9,7 +9,9 @@ type CMapIterator<T> = (x: T) => Array<T>;
 // globals
 const RED_LETTER_OFFSET: number = 5;
 let WPM: number = 320;
-let VISIBLE: boolean = false;
+let RUNNING: boolean = false;
+let WORDS: string[] = [];
+let IDX: number = 0;
 
 // word display
 function calcRedIdx(word: string): number {
@@ -132,18 +134,13 @@ function modWPM(op: SpeedOp): Handler  {
   }
 }
 
-async function cycleWords(words: string[], display: HTMLElement): Promise<void> {
-  for (let i = 0, IDX = i; i < words.length && VISIBLE; i++) {
-    const word = makeWord(words[i]);
+async function cycleWords(display: HTMLElement): Promise<void> {
+  while (IDX < WORDS.length && RUNNING) {
+    const word = makeWord(WORDS[IDX]);
     display.innerHTML = word;
     await sleep(calcSleepTime(word, WPM));
+    IDX++;
   }
-}
-
-function readerStop() {
-  const container: HTMLElement = document.querySelector('#spritz-container');
-  VISIBLE = false;
-  container.style.display = 'none';
 }
 
 async function readerSetup() {
@@ -166,6 +163,7 @@ async function readerSetup() {
   div.shadowRoot.querySelector('.close-btn').addEventListener('click', readerStop);
   div.shadowRoot.querySelector('.wpm-increase').addEventListener('click', modWPM(SpeedOp.Inc));
   div.shadowRoot.querySelector('.wpm-decrease').addEventListener('click', modWPM(SpeedOp.Dec));
+  div.shadowRoot.querySelector('.pause').addEventListener('click', togglePause);
 
   // ui setup
   div.shadowRoot.querySelector('.wpm-count').textContent = `${WPM}`;
@@ -184,7 +182,23 @@ async function readerInit() {
   const display: HTMLElement = exists.shadowRoot.querySelector('#display-area');
   const foo: HTMLElement = exists.shadowRoot.querySelector('.container');
   foo.style.top = `${window.scrollY + 45}px`;
-  VISIBLE = true;
-  const words = splitter(extractText());
-  cycleWords(words, display);
+  RUNNING = true;
+  WORDS = splitter(extractText());
+  IDX = 0;
+  cycleWords(display);
+}
+
+function togglePause(e: Event): void {
+  e.preventDefault();
+  RUNNING = !RUNNING;
+  const container: HTMLElement = document.querySelector('#spritz-container');
+  const display: HTMLElement = container.shadowRoot.querySelector('#display-area');
+  cycleWords(display);
+}
+
+
+function readerStop() {
+  const container: HTMLElement = document.querySelector('#spritz-container');
+  RUNNING = false;
+  container.style.display = 'none';
 }

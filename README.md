@@ -1,7 +1,6 @@
 node_modules/.bin/tsc --target ES6 ./scratch.ts
 
 - make modal dragabble
-- pause/resume
 - better monospace font
 - watch build for dev
 - delay for first word
