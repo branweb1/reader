@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild:js": "rm -rf tmp && mkdir tmp",
     "compile:js": "tsc --target ES6 --outDir tmp src/*.ts",
-    "minify:js": "terser --compress --output dist/reader.js -- tmp/reader.js",
+    "minify:js": "terser --compress --mangle --output dist/reader.js -- tmp/reader.js",
     "minify:bmk": "terser --compress negate_iife=false -- src/bookmarklet.js | awk -F ' ' '{print \"javascript:\"$0}' > dist/bookmarklet.js",
     "build:js": "npm run compile:js && npm run minify:js",
     "postbuild:js": "rm -rf tmp",
