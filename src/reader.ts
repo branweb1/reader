@@ -144,8 +144,8 @@ async function cycleWords(display: HTMLElement): Promise<void> {
 }
 
 function keypressHandler(e: KeyboardEvent): void {
-  e.preventDefault();
-  if (e.key === ' ') {
+  if (e && e.key === ' ') {
+    e.preventDefault();
     togglePause(e);
   }
 
@@ -190,9 +190,7 @@ async function readerInit() {
   const display: HTMLElement = exists.shadowRoot.querySelector('#display-area');
   const foo: HTMLElement = exists.shadowRoot.querySelector('.overlay');
   foo.style.height = `${document.documentElement.getBoundingClientRect().height}px`;
-//  const foo: HTMLElement = exists.shadowRoot.querySelector('.container');
   document.addEventListener('keydown', keypressHandler)
-//  foo.style.top = `${window.scrollY + 45}px`;
   WORDS = splitter(extractText());
   IDX = 0;
 }
