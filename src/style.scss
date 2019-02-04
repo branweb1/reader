@@ -5,8 +5,21 @@
   font-size: 16px;
 }
 
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: black;
+  opacity: 0.3;
+  width: 100%;
+  z-index: 5
+}
+
 .container {
   display: flex;
+  z-index: 10;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
@@ -14,10 +27,11 @@
   color: #333;
   font-family: mono;
   box-shadow: 3px 3px 10px 0px black;
-  position: absolute;
+  position: fixed;
   border: 1px solid black;
   width: 45%;
   left: 50%;
+  top: 35px;
   transform: translateX(-50%);
   z-index: 1000;
   min-width: 450px;

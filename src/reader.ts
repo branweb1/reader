@@ -48,7 +48,7 @@ function makeWord(word: string): string {
 function calcSleepTime(word: string, wpm: number): number {
   let base = 60000 / wpm;
   const lastChar = word.slice(-1);
-  if (/[\.\!\;]/.test(lastChar)) {
+  if (/[\.\!\;\?]/.test(lastChar)) {
     base += 230;
   } else if (/[\-\,\:]/.test(lastChar)) {
     base += 100;
@@ -188,9 +188,11 @@ async function readerInit() {
     exists.style.display = 'initial';
   }
   const display: HTMLElement = exists.shadowRoot.querySelector('#display-area');
-  const foo: HTMLElement = exists.shadowRoot.querySelector('.container');
+  const foo: HTMLElement = exists.shadowRoot.querySelector('.overlay');
+  foo.style.height = `${document.documentElement.getBoundingClientRect().height}px`;
+//  const foo: HTMLElement = exists.shadowRoot.querySelector('.container');
   document.addEventListener('keydown', keypressHandler)
-  foo.style.top = `${window.scrollY + 45}px`;
+//  foo.style.top = `${window.scrollY + 45}px`;
   WORDS = splitter(extractText());
   IDX = 0;
 }
